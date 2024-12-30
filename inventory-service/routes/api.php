@@ -3,6 +3,8 @@
 use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use MongoDB\Client;
+use MongoDB\BSON\ObjectId;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,3 +31,16 @@ use Illuminate\Support\Facades\Route;
     Route::get('me', [AuthController::class,'me']);
 });    
 });
+
+Route::get('test', function() {
+try {
+    $client = new Client(env('MONGO_URI'));
+    $collection = $client->inventory->products;
+    $product = $collection->insertOne(['name' => 'Pizza', 'ingredients' => ['masa', 'tomate', 'queso'] ]);
+    return response()->json(['message' => 'Guardado', 'producto' => $product]);
+} catch (\Exception $e) {
+    return response()->json(['error' => $e->getMessage()], 500);
+}
+} 
+    
+);
