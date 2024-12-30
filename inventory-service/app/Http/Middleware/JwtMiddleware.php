@@ -20,7 +20,7 @@ class JwtMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $token = $request->header('Authorization');
-        if ($token) {
+        if (!$token) {
             return response()->json(['error' => 'Token not provided'], Response::HTTP_UNAUTHORIZED);
         }
 
