@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use MongoDB\Client;
 use Symfony\Component\HttpFoundation\Response;
+use MongoDB\BSON\ObjectId;
 
 class ProductController extends Controller
 {
@@ -78,7 +79,18 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try{
+            $product = $this->collection->findOne(['_id'=> new ObjectId($id)]);
+            if(!$product){
+                return response()->json(['error' => 'No encontrado'],Response::HTTP_NOT_FOUND);
+            }
+            return response()->json([
+                'message' => 'Producto encontrado',
+                'producto'=> $product
+            ],Response::HTTP_OK);
+        }catch(\Exception $ex){
+            return response()->json(['error' => $ex->getMessage()],Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -86,7 +98,34 @@ class ProductController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $valData = $request->validate([
+            'name'=>'required|string|max:100',
+            'description'=>'required|string|max:1000',
+            'price'=>'required|numeric|min:0',
+            'category'=>'required|string|max:100',
+            'available'=>'required|boolean',
+            'ingredients'=>'required|array',
+            'quantity'=>'required|integer',
+        ]);
+        try{
+            
+            $product = $this->collection->updateOne(
+                ['_id' => new ObjectId($id)],
+                /** set es de MongoDB */
+                ['$set' => $valData]
+            );
+
+            if($product->getMatchedCount() === 0){
+                return response()->json(['error' => 'No encontrado'],Response::HTTP_NOT_FOUND);
+            }
+            
+            return response()->json([
+                'message' => 'Actualizado con éxito'
+            ],Response::HTTP_OK);
+        }catch(\Exception $ex){
+            return response()->json(['error' => $ex->getMessage()],Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     /**
