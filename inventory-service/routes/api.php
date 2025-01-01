@@ -28,6 +28,7 @@ use MongoDB\BSON\ObjectId;
 
     Route::post('/', [ProductController::class,'store']);
     Route::get('{id?}', [ProductController::class,'show']);
+    Route::get('search/searchByName', [ProductController::class,'searchByName']);
     Route::put('{id?}', [ProductController::class,'update']);
     Route::delete('{id?}', [ProductController::class,'destroy']);
     // Route::post('refresh', [AuthController::class,'refresh']);

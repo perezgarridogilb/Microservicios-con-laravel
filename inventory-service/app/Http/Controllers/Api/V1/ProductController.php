@@ -108,7 +108,7 @@ class ProductController extends Controller
             'quantity'=>'required|integer',
         ]);
         try{
-            
+            // $this->collection->findOne(['_id'=> new MongoDB\BSON\ObjectId($id)]);
             $product = $this->collection->updateOne(
                 ['_id' => new ObjectId($id)],
                 /** set es de MongoDB */
@@ -133,6 +133,42 @@ class ProductController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try{
+            $product = $this->collection->deleteOne(['_id'=> new ObjectId($id)]);
+            if($product->getDeletedCount() === 0){
+                return response()->json(['error' => 'No encontrado'],Response::HTTP_NOT_FOUND);
+            }
+            return response()->json([
+                'message' => 'Eliminado con éxito',
+                'producto'=> $product
+            ],Response::HTTP_OK);
+        }catch(Exception $ex){
+            return response()->json(['error' => $ex->getMessage()],Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function searchByName(Request $request) {
+        
+        $request->validate([
+            'name' => 'required|string|max:100',
+        ]);
+    
+        try {
+            $name = $request->input('name');
+            $products = $this->collection->find([
+                'name' => ['$regex' => '.*' . preg_quote($name, '/') . '.*', '$options' => 'i'] 
+            ])->toArray();
+    
+            if (empty($products)) {
+                return response()->json(['message' => 'No se encontraron productos con ese nombre.'], Response::HTTP_NOT_FOUND);
+            }
+    
+            return response()->json([
+                'message' => 'Productos encontrados con éxito',
+                'products' => $products
+            ], Response::HTTP_OK);
+        } catch (\Exception $ex) {
+            return response()->json(['error' => $ex->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }
