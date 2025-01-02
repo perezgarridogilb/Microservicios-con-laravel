@@ -11,6 +11,8 @@ volumes:
     driver: local
   db_server3_data:
     driver: local
+  db_server4_data:
+    driver: local
 
 services:
   # Servidor PostgreSQL
@@ -57,6 +59,21 @@ services:
       - "3311:3306"
     volumes:
       - db_server3_data:/var/lib/mysql
+    networks:
+      - laravel_network
+
+  # Servidor MongoDB para pedidos
+  db_server4:
+    image: mongo:latest
+    container_name: db_server4
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    ports:
+      - "27021:27017"
+    volumes:
+      - db_server4_data:/data/db
     networks:
       - laravel_network
   
