@@ -11,9 +11,11 @@ RUN apt-get update && apt-get install -y \
     curl \
     libxml2-dev \
     libzip-dev \
-    libssl-dev \    
-    libpq-dev \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd xml pdo_pgsql
+    libssl-dev \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd xml
+
+RUN pecl install mongodb\
+&& docker-php-ext-enable mongodb
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 

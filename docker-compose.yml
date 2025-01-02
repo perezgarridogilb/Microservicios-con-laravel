@@ -87,3 +87,26 @@ services:
       - db_server1
     networks:
       - laravel_network
+
+      # Servidor Inventory
+  inventory-service:
+      # dir local
+    image: inventory-service  
+    container_name: inventory-service
+    restart: unless-stopped
+    volumes:
+      - ./inventory-service:/var/www/html
+    environment:
+      # puertos internos
+      - MONGO_URI=mongodb://root:root@db_server2:27017/admin
+      - APP_ENV=local
+      - APP_KEY=base64:ywmpbc5TT+QGUOPPlwUDwZJKqQUX0HqDFlh/uRsjh7c=
+      - APP_DEBUG=true
+      - APP_URL=http://localhost
+      - JWT_SECRET=Z7Pc4p6GurcEanHw3tOUjSmyvX1PzkzKp7R17Awkeu0wODoEfi9ci30pOlQpi7Go
+    ports:
+      - "8089:80"
+    depends_on:
+      - db_server2
+    networks:
+      - laravel_network
