@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use GuzzleHttp\Client as GuzzleHttpClient;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use MongoDB\Client;
 use Symfony\Component\HttpFoundation\Response;
 use MongoDB\BSON\ObjectId;
@@ -52,8 +54,49 @@ class OrderController extends Controller
             'total_price' => 'required|numeric|min:0',
             'status' => 'required|string|in:pending,completed,canceled'
         ]);
+
+        $updatedProducts = [];
         
         try{
+
+            $tokenr = $request->header('Authorization');
+            $token = str_replace("Bearer ", '', $tokenr);
+
+            foreach ($valData['items'] as $pro) {
+                
+                $inventoryResponse = Http::withHeaders([
+                    'Accept' => 'application/json',
+                    'Authorization' => 'Bearer ' . $token,
+                ])->get(env('INVENTORY_SERVICE_URL') . 'api/v1/products/' . $pro['product_id']);
+
+                if ($inventoryResponse->failed() || !$inventoryResponse->json()) {
+                    return response()->json(['error' => 'producto no encontrado', Response::HTTP_NOT_FOUND]);
+                }
+
+                $product = $inventoryResponse->json()['producto'];
+                if ($product['quantity'] < $pro['quantity']) {
+                    return response()->json(['error' => 'No hay suficiente stock', Response::HTTP_NOT_FOUND]);
+                }
+
+                $updatedProducts [] = [
+                    'product_id' => $pro['product_id'],
+                    'new_quantity' => $product['quantity'] - $pro['quantity']
+                ];
+
+                foreach ($updatedProducts as $product) {
+                    $updatedResponse = HTTP::withHeaders([
+                        'Accept' => 'application/json',
+                        'Authorization' => 'Bearer ' . $token,
+                    ])->put(env('INVENTORY_SERVICE_URL') . 'api/v1/products/' . $pro['product_id'], [
+                        'quantity' => $product['new_quantity']
+                    ]);
+                }
+                
+                if ($updatedResponse->failed()) {
+                    return response()->json(['error' => 'Error al actualizar', Response::HTTP_INTERNAL_SERVER_ERROR]);
+                }
+            }
+
             $data = [
                 'customer_name'=> $valData['customer_name'],
                 'items'=> $valData['items'],
@@ -67,7 +110,7 @@ class OrderController extends Controller
             $order['_id'] = $orderResult->getInsertedId();
             return response()->json([
                 'message' => 'Orden enviada con éxito',
-                'product' => $data
+                'order' => $data
             ],Response::HTTP_CREATED);
         }catch(\Exception $e){
             return response()->json(['error' => $e->getMessage()],Response::HTTP_INTERNAL_SERVER_ERROR);

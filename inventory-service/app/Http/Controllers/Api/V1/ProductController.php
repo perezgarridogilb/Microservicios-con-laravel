@@ -99,12 +99,12 @@ class ProductController extends Controller
     public function update(Request $request, string $id)
     {
         $valData = $request->validate([
-            'name'=>'required|string|max:100',
-            'description'=>'required|string|max:1000',
-            'price'=>'required|numeric|min:0',
-            'category'=>'required|string|max:100',
-            'available'=>'required|boolean',
-            'ingredients'=>'required|array',
+            'name'=>'sometimes|required|string|max:100',
+            'description'=>'sometimes|required|string|max:1000',
+            'price'=>'sometimes|required|numeric|min:0',
+            'category'=>'sometimes|required|string|max:100',
+            'available'=>'sometimes|required|boolean',
+            'ingredients'=>'sometimes|required|array',
             'quantity'=>'required|integer',
         ]);
         try{
