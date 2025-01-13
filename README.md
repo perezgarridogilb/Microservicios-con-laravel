@@ -72,3 +72,22 @@ brew services restart php
 ```
 MONGO_URI=mongodb://root:root@localhost:27020/admin
 ```
+
+Creando job y tablas del queue
+```
+php artisan make:job sendOrderShippedEmail
+php artisan queue:table
+macbook@MacBook-Pro-de-MacBook ~/D/M/email-service (master) [1]> php artisan migrate
+
+   INFO  Preparing database.
+
+  Creating migration table ........................................ 388ms DONE
+
+   INFO  Running migrations.
+
+  2014_10_12_000000_create_users_table ............................ 203ms DONE
+  2014_10_12_100000_create_password_reset_tokens_table ............. 61ms DONE
+  2019_08_19_000000_create_failed_jobs_table ...................... 123ms DONE
+  2019_12_14_000001_create_personal_access_tokens_table ........... 127ms DONE
+  2025_01_13_012109_create_jobs_table .............................. 92ms DONE
+```

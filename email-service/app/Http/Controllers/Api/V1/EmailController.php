@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendOrderShippedEmail;
 use App\Mail\OrderShipped;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Symfony\Component\HttpFoundation\Response;
 
 class EmailController extends Controller
 {
@@ -22,6 +24,7 @@ class EmailController extends Controller
      */
     public function sendOrderShippedEmail(Request $request)
     {
+        try {
         $order = $request->input('order');
 
         $from = $request->input('from');
@@ -32,7 +35,17 @@ class EmailController extends Controller
 
         $content = $request->input('content');
 
-        Mail::send(new OrderShipped($order, $from, $to, $subject, $content));
+        SendOrderShippedEmail::dispatch(
+            $order,
+            $from,
+            $to,
+            $subject,
+            $content
+        );
+        return response()->json(['message' => 'Email sent successfully'], Response::HTTP_OK);
+    }catch(\Exception $e){
+        return response()->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
     }
 
     /**
