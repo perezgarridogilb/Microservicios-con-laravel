@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\EmailController;
 use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\AuthController;
@@ -24,13 +25,8 @@ use MongoDB\BSON\ObjectId;
 // });
 
  Route::prefix('v1')->middleware('api','jwt.verify')->group(function(){
-    Route::prefix('orders')->group(function(){
-    Route::get('/', [OrderController::class,'index']);
-
-    Route::post('/', [OrderController::class,'store']);
-    Route::get('{id?}', [OrderController::class,'show']);
-    Route::put('{id?}', [OrderController::class,'update']);
-    Route::delete('{id?}', [OrderController::class,'destroy']);
+    Route::prefix('emails')->group(function(){
+    Route::post('/', [EmailController::class,'sendOrderShippedEmail']);
     // Route::post('refresh', [AuthController::class,'refresh']);
     Route::get('me', [AuthController::class,'me']);
 });    

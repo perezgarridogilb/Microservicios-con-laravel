@@ -67,7 +67,9 @@ class OrderController extends Controller
                 $inventoryResponse = Http::withHeaders([
                     'Accept' => 'application/json',
                     'Authorization' => 'Bearer ' . $token,
-                ])->get(env('INVENTORY_SERVICE_URL') . 'api/v1/products/' . $pro['product_id']);
+                ])
+                ->timeout(60)
+                ->get(env('INVENTORY_SERVICE_URL') . 'api/v1/products/' . $pro['product_id']);
 
                 if ($inventoryResponse->failed() || !$inventoryResponse->json()) {
                     return response()->json(['error' => 'producto no encontrado', Response::HTTP_NOT_FOUND]);
@@ -87,7 +89,9 @@ class OrderController extends Controller
                     $updatedResponse = HTTP::withHeaders([
                         'Accept' => 'application/json',
                         'Authorization' => 'Bearer ' . $token,
-                    ])->put(env('INVENTORY_SERVICE_URL') . 'api/v1/products/' . $pro['product_id'], [
+                    ])
+                    ->timeout(60)
+                    ->put(env('INVENTORY_SERVICE_URL') . 'api/v1/products/' . $pro['product_id'], [
                         'quantity' => $product['new_quantity']
                     ]);
                 }

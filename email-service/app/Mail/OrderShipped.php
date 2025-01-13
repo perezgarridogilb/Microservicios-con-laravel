@@ -13,12 +13,32 @@ class OrderShipped extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $order;
+
+    public $fromAddress;
+
+    public $toAddress;
+
+    public $subject;
+
+    public $contentBody;
+
     /**
      * Create a new message instance.
+     *
+     * @param mixed $order
+     * @param string $fromAddress
+     * @param string $toAddress
+     * @param string $subject
+     * @param string $contentBody
      */
-    public function __construct()
+    public function __construct($order, $fromAddress, $toAddress, $subject, $contentBody)
     {
-        //
+        $this->order = $order;
+        $this->fromAddress = $fromAddress;
+        $this->toAddress = $toAddress;
+        $this->subject = $subject;
+        $this->contentBody = $contentBody;
     }
 
     /**
@@ -27,7 +47,10 @@ class OrderShipped extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Order Shipped',
+            subject: $this->subject,
+            from: $this->fromAddress,
+            to: $this->toAddress,
+            
         );
     }
 
@@ -37,7 +60,11 @@ class OrderShipped extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'emails.order-shipped',
+            with: [
+                'order' => $this->order,
+                'contentBody' => $this->contentBody
+            ]
         );
     }
 
