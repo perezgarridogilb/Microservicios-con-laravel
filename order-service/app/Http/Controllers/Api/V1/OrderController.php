@@ -111,7 +111,25 @@ class OrderController extends Controller
             ];
             $orderResult = $this->collection->insertOne($data);
             /** Devuelve el último id insertado */
-            $order['_id'] = $orderResult->getInsertedId();
+            $data['_id'] = $orderResult->getInsertedId();
+
+            $emailResponse = Http::withHeaders([
+                'Accept' => 'application/json',
+                'Authorization' => 'Bearer ' . $token,
+            ])
+            ->timeout(60)
+            ->post(env('EMAIL_SERVICE_URL') . 'api/v1/emails', [
+                'from' => 'no-repli@gmail.com',
+                'to' => 'novaho2095@rowplant.com',
+                'subject' => 'Confirmación de nuevo pedido #' . $data['_id'],
+                'content' => 'Gracias por su compra, su pedido ha recibido con éxito',
+                'order' => $data
+            ]);
+
+            if ($emailResponse->failed() || !$emailResponse->json()) {
+                return response()->json(['error' => 'Error enviando el email', Response::HTTP_INTERNAL_SERVER_ERROR]);
+            }
+            
             return response()->json([
                 'message' => 'Orden enviada con éxito',
                 'order' => $data

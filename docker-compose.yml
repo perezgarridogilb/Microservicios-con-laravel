@@ -127,3 +127,39 @@ services:
       - db_server2
     networks:
       - laravel_network
+
+  # Servidor de Email
+  email-service:
+      # dir local
+    image: email-service  
+    container_name: email-service
+    restart: unless-stopped
+    volumes:
+      - ./email-service:/var/www/html
+    environment:
+      # puertos internos
+      - DB_CONNECTION=mysql
+      - DB_HOST=db_server3
+      - DB_PORT=3306
+      - DB_DATABASE=order_db
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+
+      - BROADCAST_DRIVER=log
+      - CACHE_DRIVER=file
+      - FILESYSTEM_DISK=local
+      - QUEUE_CONNECTION=database
+      - SESSION_DRIVER=file
+      - SESSION_LIFETIME=120
+
+      - APP_ENV=local
+      - APP_KEY=base64:ywmpbc5TT+QGUOPPlwUDwZJKqQUX0HqDFlh/uRsjh7c=
+      - APP_DEBUG=true
+      - APP_URL=http://localhost
+      - JWT_SECRET=Z7Pc4p6GurcEanHw3tOUjSmyvX1PzkzKp7R17Awkeu0wODoEfi9ci30pOlQpi7Go
+    ports:
+      - "8879:80"
+    depends_on:
+      - db_server3
+    networks:
+      - laravel_network  
