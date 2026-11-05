@@ -1,6 +1,7 @@
 # Auth-Service Microservicio
 
 Este proyecto es un microservicio desarrollado en Laravel para gestionar la autenticación y autorización utilizando JWT.
+<img width="740" height="383" alt="Captura de pantalla 2026-11-05 a la(s) 12 20 29 p m" src="https://github.com/user-attachments/assets/bdb28de2-3403-4896-8234-ee19a98f4435" />
 
 #### Pasos para la Configuración y Ejecución
 
